@@ -3,7 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const admin = require("firebase-admin");
 const stores = express();
+const { body, validationResult } = require("express-validator");
+
 stores.use(cors({origin: true}));
+const db = admin.firestore();
 stores.get('/', async (req,res) =>{
     const snapshot = await db.collection("stores").get();
     let _stores = [];
@@ -17,14 +20,14 @@ stores.get('/', async (req,res) =>{
     res.status(200).send(JSON.stringify(_stores));
   });
 
-  /*const storeCreationValidators = [
+  const storeCreationValidators = [
     body('name').notEmpty().isLength({ min: 6, max: 30 }),
     body('email').notEmpty().isEmail(),
     body('phoneNumber').notEmpty(),
     body('country').notEmpty(),
     body('province').optional(),
     body('state').optional(),
-    body('city').notEmpty,
+    body('city').notEmpty(),
     body('county').optional(),
     body('streetNumber').notEmpty(),
     body('streetName').notEmpty(),
@@ -32,18 +35,19 @@ stores.get('/', async (req,res) =>{
     body('postalCode').notEmpty(),
     body('profileImageUrl').notEmpty(),
     body('accountType').notEmpty().isIn(["store","admin"])
-  ];*/
-  stores.post("add/", async (req, res) => {
-    /*const errors = validationResult(req);
+  ];
+  stores.post("/add",storeCreationValidators, async (req, res) => {
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       var errorArray = res.status(400).json({ errors: errors.array() });
       return errorArray;
-    }*/
+    }
     const _store = req.body;
+	console.log(JSON.stringify(_store));
     const doc_ref = await db.collection('stores').add(_store);
     res.status(201).send(JSON.stringify(doc_ref.id));
   });
-  stores.get("/:id", async (req, res) => {
+  stores.get("/id/:id", async (req, res) => {
 	const snapshot = await admin.firestore().collection("stores").doc(req.params.id).get();
 
 	const storeId = snapshot.id;
@@ -52,7 +56,7 @@ stores.get('/', async (req,res) =>{
 	res.status(200).send(JSON.stringify({id: storeId, ...storeData}));
   });
 
-  stores.put("/:id", async (req, res) => {
+  stores.put("/update/:id", async (req, res) => {
 	  const body = req.body;
 
 	  await admin.firestore().collection('stores').doc(req.params.id).update(body);

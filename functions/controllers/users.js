@@ -4,9 +4,10 @@ const cors = require("cors");
 const admin = require("firebase-admin");
 const app = express();
 app.use(cors({origin: true}));
+const db = admin.firestore();
 
-app.get("/", async (req, res) => {
-  const snapshot = await admin.firestore().collection("users").get();
+app.get("/all", async (req, res) => {
+  const snapshot = await db.collection("users").get();
   const users = [];
   snapshot.forEach((doc) => {
     const id = doc.id;
@@ -26,8 +27,8 @@ app.get("/:id", async (req, res) => {
 });
 app.post("/", async (req, res) => {
   const user = req.body;
-  await admin.firestore().collection("users").add(user);
-  res.status(201).send();
+  const doc_ref = await admin.firestore().collection("users").add(user);
+  res.status(201).send(JSON.stringify(doc_ref.id));
 });
 app.put("/:id", async (req, res) => {
     const body = req.body;

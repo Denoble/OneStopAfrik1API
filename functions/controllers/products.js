@@ -8,7 +8,7 @@ const db = admin.firestore();
 //const authMiddleware = require('../authMiddleware');
 
 const products = express();
-//const { body, validationResult } = require("express-validator");
+const { body, validationResult } = require("express-validator");
 //products.use(authMiddleware);
 
 products.use(cors({ origin: true }));
@@ -43,7 +43,7 @@ products.get('/', async (req,res) =>{
   res.status(200).send(JSON.stringify(_products));
 });
 //Get one product
-products.get("/product/:id", async (req,res) =>{
+products.get("/:id", async (req,res) =>{
   const snapshot = await db.collection('products').doc(req.params.id).get();
 
   const _productId = snapshot.id;
@@ -52,7 +52,7 @@ products.get("/product/:id", async (req,res) =>{
   res.status(200).send(JSON.stringify({id: _productId, ..._productData}));
 });
 //Get product from one store
-products.get("/products/store/:id", async (req,res) =>{
+products.get("/store/:id", async (req,res) =>{
   const snapshot = await db.collectionGroup('products')
   .where("storeId","==",req.params.id).get();
 
@@ -66,7 +66,7 @@ products.get("/products/store/:id", async (req,res) =>{
 
   res.status(200).send(JSON.stringify(_products));
 });
-/*const productCreationValidators = [
+const productCreationValidators = [
   body('storeId').notEmpty(),
   body('name').notEmpty().isLength({ min: 6, max: 30 }),
   body('productImage').notEmpty().withMessage("profile image is required")
@@ -76,8 +76,8 @@ products.get("/products/store/:id", async (req,res) =>{
   body('number').optional().isIn(),
   body('weight').optional(),
   body('paymentId').optional
-];*/
-products.post("add/", products, async (req, res) => {
+];
+products.post("/add", productCreationValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     var errorArray = res.status(400).json({ errors: errors.array() });
@@ -97,7 +97,7 @@ products.put("/update/:id", async (req, res) => {
   res.status(200).send()
 });
 
-products.delete("/delete/:id", async (req, res) => {
+products.delete("delete/:id", async (req, res) => {
   await db.collection("products").doc(req.params.id).delete();
   res.status(200).send();
 })
