@@ -21,7 +21,7 @@ stores.get('/', async (req,res) =>{
   });
 
   const storeCreationValidators = [
-    body('name').notEmpty().isLength({ min: 6, max: 30 }),
+    body('name').notEmpty().isLength({ min: 2, max: 30 }),
     body('email').notEmpty().isEmail(),
     body('phoneNumber').notEmpty(),
     body('country').notEmpty(),
@@ -39,6 +39,7 @@ stores.get('/', async (req,res) =>{
   stores.post("/add",storeCreationValidators, async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+		console.log(JSON.stringify(errors));
       var errorArray = res.status(400).json({ errors: errors.array() });
       return errorArray;
     }
