@@ -49,12 +49,28 @@ stores.get('/', async (req,res) =>{
     res.status(201).send(JSON.stringify(doc_ref.id));
   });
   stores.get("/id/:id", async (req, res) => {
-	const snapshot = await admin.firestore().collection("stores").doc(req.params.id).get();
+	const snapshot = await db.collection("stores").doc(req.params.id).get();
 
 	const storeId = snapshot.id;
 	const storeData = snapshot.data();
 
 	res.status(200).send(JSON.stringify({id: storeId, ...storeData}));
+  });
+  stores.get("/email/:email", async (req, res) => {
+	  const email = req.params.email
+	const snapshot = await db.collection("stores")
+		.where("email","==",email)
+		.get();
+	console.log(JSON.stringify(snapshot));
+	let _stores = [];
+    snapshot.forEach((doc) => {
+      let id = doc.id;
+      let data = doc.data();
+
+      _stores.push({ id, ...data });
+    });
+
+    res.status(200).send(JSON.stringify(_stores[0]));
   });
 
   stores.put("/update/:id", async (req, res) => {

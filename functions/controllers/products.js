@@ -83,11 +83,9 @@ products.post("/add", productCreationValidators, async (req, res) => {
     var errorArray = res.status(400).json({ errors: errors.array() });
     return errorArray;
   }
-  const _product = req.body;
-
-  await db.collection('products').add(_product);
-
-  res.status(201).send();
+  	const _product = req.body;
+    const doc_ref = await db.collection('products').add(_product);
+    res.status(201).send(JSON.stringify(doc_ref.id));
 });
 products.put("/update/:id", async (req, res) => {
   const body = req.body;
