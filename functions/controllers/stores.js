@@ -32,8 +32,8 @@ stores.get('/', async (req,res) =>{
     body('streetNumber').notEmpty(),
     body('streetName').notEmpty(),
     body('unitNumber').optional(),
-    body('postalCode').notEmpty(),
-    body('profileImageUrl').notEmpty(),
+    body('postalCode').notEmpty().isPostalCode(),
+    body('profileImageUrl').notEmpty().isURL(),
     body('accountType').notEmpty().isIn(["store","admin"])
   ];
   stores.post("/add",storeCreationValidators, async (req, res) => {

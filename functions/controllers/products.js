@@ -67,15 +67,15 @@ products.get("/store/:id", async (req,res) =>{
   res.status(200).send(JSON.stringify(_products));
 });
 const productCreationValidators = [
-  body('storeId').notEmpty(),
+  body('storeEmail').notEmpty().isEmail(),
   body('name').notEmpty().isLength({ min: 6, max: 30 }),
-  body('productImage').notEmpty().withMessage("profile image is required")
-  .isMagnetURI().withMessage('not an image uri'),
-  body('price').notEmpty().isDecimal,
+  body('productImage').notEmpty().isURL()
+  .withMessage("profile image is required"),
+  body('price').notEmpty().isDecimal(),
   body('description').notEmpty(),
-  body('number').optional().isIn(),
-  body('weight').optional(),
-  body('paymentId').optional
+  body('number').optional().isInt(),
+  body('weight').optional().isDecimal(),
+  body('paymentId').optional()
 ];
 products.post("/add", productCreationValidators, async (req, res) => {
   const errors = validationResult(req);
