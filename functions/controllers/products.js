@@ -14,9 +14,9 @@ const { body, validationResult } = require("express-validator");
 products.use(cors({ origin: true }));
 
 products.get('/:country/:city', async(req,res) =>{
-  const snapshot = await db.collectionGroup("products")
-                  .where("country", "==",req.params.country)
-                  .where("city","==",req.params.city).get()
+  const snapshot = await db.collection("products")
+                  .where("city", "==",req.params.city)
+                  .where("country","==",req.params.country).get()
 
   let _products = [];
   snapshot.forEach((doc) => {
@@ -68,13 +68,15 @@ products.get("/store/:id", async (req,res) =>{
 });
 const productCreationValidators = [
   body('storeEmail').notEmpty().isEmail(),
-  body('name').notEmpty().isLength({ min: 6, max: 30 }),
+  body('name').notEmpty().isLength({ min: 3, max: 30 }),
   body('productImage').notEmpty().isURL()
   .withMessage("profile image is required"),
   body('price').notEmpty().isDecimal(),
   body('description').notEmpty(),
   body('number').optional().isInt(),
-  body('weight').optional().isDecimal(),
+  body('weight').notEmpty(),
+  body('city').notEmpty(),
+  body('country').notEmpty(),
   body('paymentId').optional()
 ];
 products.post("/add", productCreationValidators, async (req, res) => {
