@@ -32,7 +32,7 @@ stores.get('/', async (req,res) =>{
     body('streetNumber').notEmpty(),
     body('streetName').notEmpty(),
     body('unitNumber').optional(),
-    body('postalCode').notEmpty().isPostalCode(),
+    body('postalCode').notEmpty(),
     body('profileImageUrl').notEmpty().isURL(),
     body('accountType').notEmpty().isIn(["store","admin"])
   ];
@@ -73,12 +73,18 @@ stores.get('/', async (req,res) =>{
     res.status(200).send(JSON.stringify(_stores[0]));
   });
 
-  stores.put("/update/:id", async (req, res) => {
+  stores.put("/update/:id", storeCreationValidators,async (req, res) => {
+	const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+		console.log(JSON.stringify(errors));
+      var errorArray = res.status(400).json({ errors: errors.array() });
+      return errorArray;
+    }
 	  const body = req.body;
 
-	  await admin.firestore().collection('stores').doc(req.params.id).update(body);
+	  const doc_ref = await admin.firestore().collection('stores').doc(req.params.id).update(body);
 
-	  res.status(200).send()
+	  res.status(200).send(JSON.stringify(doc_ref.id));
   });
 
   stores.delete("/:id", async (req, res) => {
