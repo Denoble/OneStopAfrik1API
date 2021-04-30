@@ -71,7 +71,7 @@ const productCreationValidators = [
   body('name').notEmpty().isLength({ min: 3, max: 30 }),
   body('productImage').notEmpty().isURL()
   .withMessage("profile image is required"),
-  body('price').notEmpty().isDecimal(),
+  body('price').notEmpty(),
   body('description').notEmpty(),
   body('number').optional().isInt(),
   body('weight').notEmpty(),
