@@ -53,7 +53,7 @@ products.get("/:id", async (req,res) =>{
 });
 //Get product from one store
 products.get("/store/:id", async (req,res) =>{
-  const snapshot = await db.collectionGroup('products')
+  const snapshot = await db.collection('products')
   .where("storeId","==",req.params.id).get();
 
   let _products = [];
