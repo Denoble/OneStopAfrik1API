@@ -73,8 +73,8 @@ const productCreationValidators = [
   .withMessage("profile image is required"),
   body('price').notEmpty(),
   body('description').notEmpty(),
-  body('number').optional().isInt(),
-  body('weight').notEmpty(),
+  body('numberAvailable').isInt(),
+  body('weight').optional(),
   body('city').notEmpty(),
   body('country').notEmpty(),
   body('paymentId').optional()
