@@ -16,7 +16,7 @@ sold.use(cors({ origin: true }));
 sold.get("/store/:id/:days_number", async (req,res) =>{
 	var today =  new Date();
 	const querryDate = today.setDate(today.getDate()- parseInt(req.params.days_number));
-	const snapshot = await db.collection('products')
+	const snapshot = await db.collection('sold')
 	.where("storeId","==",req.params.id)
 	.where('createdAt', '>=',querryDate).get();
 	let _products = [];
@@ -30,39 +30,40 @@ sold.get("/store/:id/:days_number", async (req,res) =>{
 	res.status(200).send(JSON.stringify(_products));
   });
 
-const productCreationValidators = [
-  body('storeEmail').notEmpty().isEmail(),
-  body('name').notEmpty().isLength({ min: 3, max: 30 }),
-  body('productImage').notEmpty().isURL()
-  .withMessage("profile image is required"),
-  body('price').notEmpty(),
-  body('description').notEmpty(),
-  body('numberAvailable').isInt(),
-  body('weight').optional(),
-  body('city').notEmpty(),
-  body('country').notEmpty(),
-  body('paymentId').optional()
+const soldProductCreationValidators = [
+	body('name').notEmpty().isLength({ min: 3, max: 30 }),
+	body('storeEmail').notEmpty().isEmail(),
+	body('productImage').notEmpty().isURL()
+	.withMessage("profile image is required"),
+	body('price').notEmpty(),
+	body('description').notEmpty(),
+	body('number').isInt(),
+	body('weight').optional(),
+	body('city').notEmpty(),
+	body('country').notEmpty(),
+	body('quantitySold').notEmpty().isInt(),
+	body('paymentId').optional()
 ];
-sold.post("/add", productCreationValidators, async (req, res) => {
+sold.post("/add", soldProductCreationValidators, async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     var errorArray = res.status(400).json({ errors: errors.array() });
     return errorArray;
   }
   	const _product = req.body;
-    const doc_ref = await db.collection('products').add(_product);
+    const doc_ref = await db.collection('sold').add(_product);
     res.status(201).send(JSON.stringify(doc_ref.id));
 });
 sold.put("/update/:id", async (req, res) => {
   const body = req.body;
 
-  await db.collection('products').doc(req.params.id).update(body);
+  await db.collection('sold').doc(req.params.id).update(body);
 
   res.status(200).send()
 });
 
 sold.delete("delete/:id", async (req, res) => {
-  await db.collection("products").doc(req.params.id).delete();
+  await db.collection("sold").doc(req.params.id).delete();
   res.status(200).send();
 })
 exports.sold = functions.https.onRequest(sold);
