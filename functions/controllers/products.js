@@ -88,17 +88,24 @@ products.post("/add", productCreationValidators, async (req, res) => {
   	const _product = req.body;
     const doc_ref = await db.collection('products').add(_product);
     res.status(201).send(JSON.stringify(doc_ref.id));
+
 });
-products.put("/update/:id", async (req, res) => {
-  const body = req.body;
+products.put("/update/:id",productCreationValidators, async (req, res) => {
+	const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+		console.log(JSON.stringify(errors));
+      var errorArray = res.status(400).json({ errors: errors.array() });
+      return errorArray;
+    }
+	  const body = req.body;
 
-  await db.collection('products').doc(req.params.id).update(body);
+	  const doc_ref = await db.collection('products').doc(req.params.id).update(body);
 
-  res.status(200).send()
+	  res.status(200).send(JSON.stringify(doc_ref.id));
 });
 
-products.delete("delete/:id", async (req, res) => {
-  await db.collection("products").doc(req.params.id).delete();
-  res.status(200).send();
+products.delete("/delete/:id", async (req, res) => {
+	const doc_ref = await db.collection("products").doc(req.params.id).delete();
+  res.status(200).send(JSON.stringify(doc_ref.id));
 })
 exports.products = functions.https.onRequest(products);

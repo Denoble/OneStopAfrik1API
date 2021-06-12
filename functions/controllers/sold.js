@@ -31,7 +31,8 @@ sold.get("/store/:id/:days_number", async (req,res) =>{
   });
 
 const soldProductCreationValidators = [
-	body('name').notEmpty().isLength({ min: 3, max: 30 }),
+	body('productName').notEmpty().isLength({ min: 3, max: 30 }),
+	body('productId').notEmpty(),
 	body('storeEmail').notEmpty().isEmail(),
 	body('productImage').notEmpty().isURL()
 	.withMessage("profile image is required"),
