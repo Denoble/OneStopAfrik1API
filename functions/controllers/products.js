@@ -1,18 +1,50 @@
 const functions = require("firebase-functions");
 const express = require("express");
 const cors = require("cors");
-
 const admin = require("firebase-admin");
-const db = admin.firestore();
-
 //const authMiddleware = require('../authMiddleware');
-
 const products = express();
 const { body, validationResult } = require("express-validator");
 //products.use(authMiddleware);
-
 products.use(cors({ origin: true }));
+const db = admin.firestore();
 
+products.get('/', async (req,res) =>{
+  const snapshot = await db.collection("products").get();
+
+  let _products = [];
+  snapshot.forEach((doc) => {
+    let id = doc.id;
+    let data = doc.data();
+
+    _products.push({ id, ...data });
+  });
+
+  res.status(200).send(JSON.stringify(_products));
+});
+products.get("/id/:id", async (req,res) =>{
+	const snapshot = await db.collection('products').doc(req.params.id).get();
+
+	const _productId = snapshot.id;
+	const _productData = snapshot.data();
+
+	res.status(200).send(JSON.stringify({id: _productId, ..._productData}));
+  });
+  products.get("/storeEmail/:storeEmail", async (req,res) =>{
+	const email = req.params.storeEmail
+   const snapshot = await db.collection('products')
+   .where("storeEmail","==",email).get();
+   console.log(JSON.stringify(snapshot)
+   );
+   let _products = [];
+   snapshot.forEach((doc) => {
+	 let id = doc.id;
+	 let data = doc.data();
+	 _products.push({ id, ...data });
+   });
+
+   res.status(200).send(JSON.stringify(_products));
+ });
 products.get('/:country/:city', async(req,res) =>{
   const snapshot = await db.collection("products")
                   .where("city", "==",req.params.city)
@@ -29,43 +61,6 @@ products.get('/:country/:city', async(req,res) =>{
   res.status(200).send(JSON.stringify(_products));
 });
 
-products.get('/', async (req,res) =>{
-  const snapshot = await db.collection("products").get();
-
-  let _products = [];
-  snapshot.forEach((doc) => {
-    let id = doc.id;
-    let data = doc.data();
-
-    _products.push({ id, ...data });
-  });
-
-  res.status(200).send(JSON.stringify(_products));
-});
-//Get one product
-products.get("/:id", async (req,res) =>{
-  const snapshot = await db.collection('products').doc(req.params.id).get();
-
-  const _productId = snapshot.id;
-  const _productData = snapshot.data();
-
-  res.status(200).send(JSON.stringify({id: _productId, ..._productData}));
-});
-//Get product from one store
-products.get("/store/:id", async (req,res) =>{
-  const snapshot = await db.collection('products')
-  .where("storeId","==",req.params.id).get();
-
-  let _products = [];
-  snapshot.forEach((doc) => {
-    let id = doc.id;
-    let data = doc.data();
-
-    _products.push({ id, ...data });
-  });
-
-  res.status(200).send(JSON.stringify(_products));
-});
 const productCreationValidators = [
   body('storeEmail').notEmpty().isEmail(),
   body('name').notEmpty().isLength({ min: 3, max: 30 }),
