@@ -40,8 +40,8 @@ const soldProductCreationValidators = [
 	body('description').notEmpty(),
 	body('number').isInt(),
 	body('weight').optional(),
-	body('city').notEmpty(),
-	body('country').notEmpty(),
+	body('city').notEmpty().toLowerCase().ltrim().rtrim(),
+	body('country').notEmpty().toLowerCase().ltrim().rtrim(),
 	body('quantitySold').notEmpty().isInt(),
 	body('paymentId').optional()
 ];

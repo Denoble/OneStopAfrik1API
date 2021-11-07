@@ -45,10 +45,12 @@ products.get("/id/:id", async (req,res) =>{
 
    res.status(200).send(JSON.stringify(_products));
  });
-products.get('/:country/:city', async(req,res) =>{
+products.get('/:country/:city/:category', async(req,res) =>{
   const snapshot = await db.collection("products")
-                  .where("city", "==",req.params.city)
-                  .where("country","==",req.params.country).get()
+                  .where("city", "==",req.params.city.toLowerCase())
+                  .where("country","==",req.params.country.toLowerCase())
+				  .where("category", "==",req.params.category.toLowerCase() )
+				  .get()
 
   let _products = [];
   snapshot.forEach((doc) => {
@@ -62,16 +64,17 @@ products.get('/:country/:city', async(req,res) =>{
 });
 
 const productCreationValidators = [
-  body('storeEmail').notEmpty().isEmail(),
-  body('name').notEmpty().isLength({ min: 3, max: 30 }),
+	body('category').notEmpty(),
+  body('storeEmail').notEmpty().isEmail().normalizeEmail(),
+  body('name').notEmpty().toLowerCase().ltrim().rtrim().isLength({ min: 3, max: 30 }),
   body('productImage').notEmpty().isURL()
   .withMessage("profile image is required"),
   body('price').notEmpty(),
   body('description').notEmpty(),
   body('number').isInt(),
   body('weight').optional(),
-  body('city').notEmpty(),
-  body('country').notEmpty(),
+  body('city').notEmpty().toLowerCase().ltrim().rtrim(),
+  body('country').notEmpty().toLowerCase().rtrim().ltrim(),
   body('paymentId').optional()
 ];
 products.post("/add", productCreationValidators, async (req, res) => {
